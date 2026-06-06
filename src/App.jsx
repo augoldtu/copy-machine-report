@@ -178,6 +178,11 @@ setReadyToExport(true);
 
   return (
     <div className="container">
+      <img
+      src="/logo.png"
+      alt="school logo"
+      className="footer-logo"
+    />
 
       <h1>📋 บันทึกการใช้งานเครื่องถ่ายเอกสาร</h1>
 
