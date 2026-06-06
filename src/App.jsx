@@ -424,7 +424,7 @@ setReadyToExport(true);
       </p>
 
       <p>
-        Version: v1.0 | ปีการศึกษา 2568
+        Version: v1.0 | ปีการศึกษา 2569
       </p>
 
     </div>
