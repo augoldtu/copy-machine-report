@@ -206,3 +206,31 @@ select {
   background: white !important;
   color: black !important;
 }
+.footer-credit {
+  margin-top: 40px;
+  padding: 20px;
+  border-top: 2px solid #eee;
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+}
+
+.footer-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.footer-logo {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.footer-title {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}

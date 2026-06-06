@@ -400,7 +400,38 @@ setReadyToExport(true);
 )}     
 
       </div>
+      <footer className="footer-credit">
 
+  <div className="footer-box">
+
+    <img
+      src="/logo.png"
+      alt="school logo"
+      className="footer-logo"
+    />
+
+    <div>
+      <p className="footer-title">
+        🏫 โรงเรียนบ้านหนองตะขบ
+      </p>
+
+      <p>
+        ระบบบันทึกการใช้งานเครื่องถ่ายเอกสาร
+      </p>
+
+      <p>
+        ผู้พัฒนา: นายเนรมิต เหล็กคงสันเทียะ
+      </p>
+
+      <p>
+        Version: v1.0 | ปีการศึกษา 2568
+      </p>
+
+    </div>
+
+  </div>
+
+</footer>
     </div>
   );
 }
