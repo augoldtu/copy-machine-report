@@ -96,9 +96,10 @@ select {
 .report-table th,
 .report-table td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 4px;
   text-align: left;
   color: #222222;
+  font-size: 12px;
 }
 
 .report-table th {
