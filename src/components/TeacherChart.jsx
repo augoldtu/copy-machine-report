@@ -1,56 +1,78 @@
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
+  PieChart,
+  Pie,
+  Cell,
   Tooltip,
-  Legend
-} from "chart.js";
-
-import { Bar } from "react-chartjs-2";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+  Legend,
+  ResponsiveContainer
+} from "recharts";
 
 function TeacherChart({ reports }) {
 
-  const teacherMap = {};
+  const teacherData = {};
 
   reports.forEach(item => {
 
-    if (!teacherMap[item.teacher]) {
+    const teacher = item.teacher;
 
-      teacherMap[item.teacher] = 0;
-    }
-
-    teacherMap[item.teacher] +=
+    teacherData[teacher] =
+      (teacherData[teacher] || 0) +
       Number(item.quantity || 0);
 
   });
 
-  const data = {
+  const data = Object.keys(teacherData).map(
+    teacher => ({
+      name: teacher,
+      value: teacherData[teacher]
+    })
+  );
 
-    labels:
-      Object.keys(teacherMap),
+  const COLORS = [
+    "#0088FE",
+    "#00C49F",
+    "#FFBB28",
+    "#FF8042",
+    "#AA66CC",
+    "#FF6699"
+  ];
 
-    datasets: [
-      {
-        label: "จำนวนแผ่น",
+  return (
+    <ResponsiveContainer
+      width="100%"
+      height={350}
+    >
+      <PieChart>
 
-        data:
-          Object.values(teacherMap)
-      }
-    ]
-  };
+        <Pie
+          data={data}
+          dataKey="value"
+          nameKey="name"
+          cx="50%"
+          cy="50%"
+          outerRadius={120}
+          label
+        >
+          {data.map((entry, index) => (
 
-  return <Bar data={data} />;
+            <Cell
+              key={index}
+              fill={
+                COLORS[
+                  index % COLORS.length
+                ]
+              }
+            />
+
+          ))}
+        </Pie>
+
+        <Tooltip />
+        <Legend />
+
+      </PieChart>
+    </ResponsiveContainer>
+  );
 }
 
 export default TeacherChart;
