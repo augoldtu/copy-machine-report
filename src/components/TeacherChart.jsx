@@ -39,7 +39,7 @@ function TeacherChart({ reports }) {
 
   return (
     <ResponsiveContainer
-      width="100%"
+      width="70%"
       height={350}
     >
       <PieChart>
