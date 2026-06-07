@@ -40,7 +40,7 @@ function TeacherChart({ reports }) {
   return (
     <ResponsiveContainer
       width="100%"
-      height={350}
+      height={500}
     >
       <PieChart>
 
@@ -48,8 +48,8 @@ function TeacherChart({ reports }) {
           data={data}
           dataKey="value"
           nameKey="name"
-          cx="30%"
-          cy="30%"
+          cx="50%"
+          cy="50%"
           outerRadius={120}
           label
         >
