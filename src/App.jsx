@@ -238,7 +238,7 @@ const teachers = [
       className="footer-logo"
     />
 
-      <h1>📋 บันทึกการใช้งานเครื่องถ่ายเอกสาร</h1>
+      <h1>📋 COPYLOG</h1>
 
       <div className="form-card">
 
