@@ -3,6 +3,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import autoTable from "jspdf-autotable";
 import "./App.css";
+import html2pdf from "html2pdf.js";
 
 import MonthlyChart from "./components/MonthlyChart";
 import TeacherChart from "./components/TeacherChart";
@@ -17,6 +18,9 @@ function App() {
   const [showChart, setShowChart] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const [reports, setReports] = useState([]);
+  const [startMonth, setStartMonth] = useState("");
+  const [endMonth, setEndMonth] = useState("");
+
   const [loading, setLoading] = useState(true);
 
   const handleSave = async () => {
@@ -70,20 +74,28 @@ function App() {
 
 const loadReports = () => {
 
-  setLoading(true);   // 👈 ใส่ตรงนี้ (ก่อน fetch)
+  console.log("กำลังโหลดข้อมูล...");
 
-  fetch("https://script.google.com/macros/s/AKfycbzV5jdz55k4gB8LQZ0zxhilZsUeDn84SyYqKylzGB7ACBfHYyquVOrL3tqkhU168K8x/exec")
+  setLoading(true);
+
+  fetch(
+    "https://script.google.com/macros/s/AKfycbzV5jdz55k4gB8LQZ0zxhilZsUeDn84SyYqKylzGB7ACBfHYyquVOrL3tqkhU168K8x/exec"
+  )
     .then(res => res.json())
     .then(data => {
 
+      console.log("ข้อมูลที่ได้รับ =", data);
+
       setReports(data);
-      setLoading(false);  // 👈 โหลดเสร็จปิด
+
+      setLoading(false);
 
     })
     .catch(err => {
 
-      console.error(err);
-      setLoading(false);  // 👈 กันค้าง
+      console.error("ERROR =", err);
+
+      setLoading(false);
 
     });
 
@@ -94,19 +106,49 @@ const loadReports = () => {
   loadReports();
 
 }, []);
-const [readyToExport, setReadyToExport] = useState(false);
-const totalJobs = reports.length;
 
-const totalSheets = reports.reduce(
-  (sum, item) =>
-    sum + Number(item.quantity || 0),
+  const filteredReports = reports.filter(item => {
+
+  if (!item.date) return false;
+
+  const itemDate = new Date(item.date);
+
+  const itemMonth =
+    itemDate.getFullYear() * 100 +
+    (itemDate.getMonth() + 1);
+
+  const start =
+    startMonth
+      ? Number(startMonth.replace("-", ""))
+      : 0;
+
+  const end =
+    endMonth
+      ? Number(endMonth.replace("-", ""))
+      : 999999;
+
+  return (
+    itemMonth >= start &&
+    itemMonth <= end
+  );
+
+});
+
+const totalJobs = filteredReports.length;
+
+const totalSheets = filteredReports.reduce(
+  (sum, item) => sum + Number(item.quantity || 0),
   0
 );
 
-const totalTeachers =
-  new Set(
-    reports.map(item => item.teacher)
-  ).size;
+const totalTeachers = new Set(
+  filteredReports.map(item => item.teacher)
+).size;
+
+console.log("reports =", reports);
+console.log("totalJobs =", totalJobs);
+console.log("totalSheets =", totalSheets);
+console.log("totalTeachers =", totalTeachers);
 
 const teachers = [
   "นางรุ่งระวี บุษบงค์",
@@ -131,49 +173,61 @@ const teachers = [
 ];
 
   const exportPDF = async () => {
-setReadyToExport(true);
-  setShowReport(true);
 
-  // ⛔ รอ React render จริง (สำคัญมาก)
-  await new Promise(resolve => setTimeout(resolve, 300));
+  if (reports.length === 0) {
 
-  const reportElement =
-    document.getElementById("pdf-report");
+    alert("ยังไม่มีข้อมูล");
 
-  if (!reportElement) {
-    alert("ไม่พบรายงาน");
     return;
+
   }
 
-  const canvas =
-    await html2canvas(reportElement, {
-      scale: 2,
-      useCORS: true,
-      scrollY: 0
-    });
-
-  const imgData =
-    canvas.toDataURL("image/png");
-
-  const pdf =
-    new jsPDF("p", "mm", "a4");
-
-  const pdfWidth =
-    pdf.internal.pageSize.getWidth();
-
-  const pdfHeight =
-    (canvas.height * pdfWidth) / canvas.width;
-
-  pdf.addImage(
-    imgData,
-    "PNG",
-    0,
-    0,
-    pdfWidth,
-    pdfHeight
+  // รอ React render ให้เสร็จก่อน
+  await new Promise(resolve =>
+    setTimeout(resolve, 1000)
   );
 
-  pdf.save("รายงานถ่ายเอกสาร.pdf");
+  const element =
+    document.getElementById("pdf-report");
+
+  if (!element) {
+
+    alert("ไม่พบรายงาน");
+
+    return;
+
+  }
+
+  const options = {
+
+    margin: 10,
+
+    filename:
+      "รายงานการใช้เครื่องถ่ายเอกสาร.pdf",
+
+    image: {
+      type: "jpeg",
+      quality: 1
+    },
+
+    html2canvas: {
+      scale: 2,
+      useCORS: true
+    },
+
+    jsPDF: {
+      unit: "mm",
+      format: "a4",
+      orientation: "landscape"
+    }
+
+  };
+
+  html2pdf()
+    .set(options)
+    .from(element)
+    .save();
+
 };
 
   return (
@@ -278,16 +332,52 @@ setReadyToExport(true);
 
     <h3>กราฟรายเดือน</h3>
 
-<MonthlyChart reports={reports} />
+<MonthlyChart reports={filteredReports} />
 
 <br />
 
 <h3>กราฟแยกตามครู</h3>
 
-<TeacherChart reports={reports} />
+<TeacherChart reports={filteredReports} />
   </div>
 )}
+<div
+  style={{
+    display: "flex",
+    gap: "10px",
+    marginBottom: "20px"
+  }}
+>
 
+  <div>
+
+    <label>เดือนเริ่มต้น</label>
+
+    <input
+      type="month"
+      value={startMonth}
+      onChange={(e) =>
+        setStartMonth(e.target.value)
+      }
+    />
+
+  </div>
+
+  <div>
+
+    <label>เดือนสิ้นสุด</label>
+
+    <input
+      type="month"
+      value={endMonth}
+      onChange={(e) =>
+        setEndMonth(e.target.value)
+      }
+    />
+
+  </div>
+
+</div>
  {showReport && (
   <div
     id="pdf-report"
@@ -295,6 +385,12 @@ setReadyToExport(true);
   >
 
     <div className="report-header">
+    
+<img
+      src="/logo.png"
+      alt="school logo"
+      className="footer-logo"
+    />
 
   <h2>
     โรงเรียนบ้านหนองตะขบ
@@ -355,7 +451,7 @@ setReadyToExport(true);
 
       <tbody>
 
-        {reports.map((item, index) => (
+        {filteredReports.map((item, index) => (
 
           <tr key={index}>
 
